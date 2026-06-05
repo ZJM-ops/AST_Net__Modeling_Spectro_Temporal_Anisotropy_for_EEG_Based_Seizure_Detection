@@ -2,7 +2,8 @@
 This repository contains the official PyTorch implementation of **AST-Net** (Asymmetric Spectral-Temporal Network), a physiology-aware deep learning framework tailored for EEG-based seizure detection using 2D time-frequency scalograms. 
  ## Data Availability Statement 
  The multi-channel rat EEG dataset used in this study is non-public. To request access for academic or verification purposes, researchers must contact the original authors of the dataset. 
- For detailed information regarding the experimental cohorts, surgical procedures, and ethical approvals, please refer to the primary publication: * **Reference:** Yi, Y., Zhang, S., Dai, J., Zheng, H., Peng, X., Cheng, L., ... & Hu, Y. (2024). MiR-23b-3p improves brain damage after status epilepticus by reducing the formation of pathological high-frequency oscillations via inhibition of cx43 in rat hippocampus. _ACS Chemical Neuroscience_, _15_(14), 2633-2642.
+ For detailed information regarding the experimental cohorts, surgical procedures, and ethical approvals, please refer to the primary publication:
+  ***Reference:** Yi, Y., Zhang, S., Dai, J., Zheng, H., Peng, X., Cheng, L., ... & Hu, Y. (2024). MiR-23b-3p improves brain damage after status epilepticus by reducing the formation of pathological high-frequency oscillations via inhibition of cx43 in rat hippocampus. _ACS Chemical Neuroscience_, _15_(14), 2633-2642.
 
 ---
 
@@ -51,6 +52,18 @@ python channel_filter.py
 Slice continuous temporal waveforms into discrete segments (`.npy` blocks) using 2-second windows with a 50% overlap ratio:
 
     python ast_net_train.py
+### Step 5: Parallelized CWT Scalogram Generation
+Convert 1D temporal slices into 2D time-frequency scalograms via a multi-threaded CWT pipeline using the Morlet wavelet, with frequencies restricted to the fast ripple band (250–490 Hz). Scalograms are resized to $224 \times 224$ pixels.
+
+    python time_frequency_transform.py
+
+### Step 6: Trigger AST-Net Ensemble Training
+
+Initiate the optimization loop for all 8 EEG channels independently, and execute the soft voting ensemble algorithm to evaluate final test accuracies, confusion matrices, and the continuous Seizure Severity Index (SSI):
+
+    python ast_net_train.py
+
+
 
 ## AST-Net Architectural Design
 
