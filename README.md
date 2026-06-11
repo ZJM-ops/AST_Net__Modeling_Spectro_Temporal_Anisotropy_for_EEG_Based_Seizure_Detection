@@ -17,10 +17,10 @@ This repository contains the official PyTorch implementation of **AST-Net** (Asy
 ├── requirements.txt              # Environment dependencies and package specifications
 ├── .gitignore                    # Git tracking ignore file to safeguard massive datasets
 ├── dataset_prepare.py            # Phase 1: Data storage cleansing and anomaly removal
-├── data_labeler.py               # Phase 2: Metadata indexing and labels.csv generation
-├── channel_filter.py             # Phase 3: 8-channel filtration and 50Hz notch filter conditioning
+├── generate_labels.py            # Phase 2: Metadata indexing and labels.csv generation
+├── preprocess_channels.py        # Phase 3: 8-channel filtration and 50Hz notch filter conditioning
 ├── data_segmentation.py          # Phase 4: Slicing continuous waveforms into 2s overlapping windows
-├── time_frequency_transform.py   # Phase 5: Parallelized Continuous Wavelet Transform (CWT) scaling
+├── cwt_processor.py              # Phase 5: Parallelized Continuous Wavelet Transform (CWT) scaling
 └── ast_net_train.py              # Phase 6: Channel-independent optimization and soft voting ensemble
 ```
 ## Execution Pipeline
@@ -41,21 +41,21 @@ python dataset_prepare.py
 ### Step 2: Formulate Central Metadata Indexing
 Query the directory structure to synthesize the mapping layer (`labels.csv`):
 ```
-python data_labeler.py
+python generate_labels.py
 ```
 ### Step 3: Extract Effective Channels and Apply Filter
 Filter the matrix down to the 8 clinically relevant EEG channels (6 electrodes in hippocampal subregions CA1, CA3, and dentate gyrus, plus 2 reference electrodes) and apply notch filtering to suppress 50Hz powerline interference:
 ```
-python channel_filter.py
+python preprocess_channels.py
 ```
 ### Step 4: Temporal Window Slicing
 Slice continuous temporal waveforms into discrete segments (`.npy` blocks) using 2-second windows with a 50% overlap ratio:
 
-    python ast_net_train.py
+    python data_segmentation.py
 ### Step 5: Parallelized CWT Scalogram Generation
 Convert 1D temporal slices into 2D time-frequency scalograms via a multi-threaded CWT pipeline using the Morlet wavelet, with frequencies restricted to the fast ripple band (250–490 Hz). Scalograms are resized to $224 \times 224$ pixels.
 
-    python time_frequency_transform.py
+    python cwt_processor.py
 
 ### Step 6: Trigger AST-Net Ensemble Training
 
